@@ -1,5 +1,4 @@
 const logInfo = require('./logInfo.js');
-
 module.exports = {
   selectorLabel: 'data-sign',
   caseServices: [{

@@ -2,6 +2,7 @@ import { createProcess } from 'marten';
 import ToggleEnv from './toggleEnv';
 /* global $, page, browser, context */
 
+const oauthUrl = 'http://service-itldevxmn.lab.nordigy.ru';
 export default class Login {
   static async prepare(context) {
     await $(context.driver.app).waitFor('[class*=loginButton]', { selector: 'css' });
@@ -16,17 +17,21 @@ export default class Login {
     await $(context.driver.app).waitFor('[class*=loginButton]', { selector: 'css' });
     await $(page).click('[class*=loginButton]', { selector: 'css' });
     // TODO: wait for popup
-    await $(page).waitFor(2000);
-    const targets = await browser.targets();
-    const popupTarget = targets.find(t => t._targetInfo.title === 'Sign in - RingCentral');
-    const loginPage = await popupTarget.page();
+    const loginPage = await new Promise(resolve =>
+      browser.on('targetcreated', async (t) => {
+        if (t._targetInfo && t._targetInfo.url.includes(oauthUrl)) {
+          resolve(await t.page());
+        }
+      })
+    );
     // 1. username
+    await $(loginPage).waitFor('input#credential', { selector: 'css' });
     await $(loginPage).type('input#credential', params.username, { selector: 'css' });
     // TODO: wait for url change
     await Promise.all([
       $(loginPage).click('[data-test-automation-id=loginCredentialNext]', { selector: 'css' }),
       // loginPage.waitForNavigation({ waitUntil: 'networkidle2' }),
-      $(loginPage).waitFor(1000),
+      $(loginPage).waitFor(5000),
       $(loginPage).waitFor('input#password', { selector: 'css' }),
     ]);
     // 2. pwd

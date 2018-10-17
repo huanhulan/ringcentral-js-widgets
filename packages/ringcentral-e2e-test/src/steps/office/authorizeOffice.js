@@ -1,20 +1,15 @@
 /* global $, page, browser, context */
 export default class AuthorizeOffice {
-  static async login() {
+  static async login(officeAuthPage = null) {
     const params = context.options.config;
     const MICROSOFT_URL = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
-
-    await $(page).waitFor('div[title="More Menu"]', { selector: 'css' });
-    await $(page).click('div[title="More Menu"]', { selector: 'css' });
-    await $(page).waitFor('div[title="Settings"]', { selector: 'css' });
-    await $(page).click('div[title="Settings"]', { selector: 'css' });
-    await $(page).waitFor('button[class*="AuthorizeSettingsPanel"]', { selector: 'css' });
-    await $(page).click('button[class*="AuthorizeSettingsPanel"]', { selector: 'css' });
-    const officeAuthPage = await new Promise(resolve => browser.on('targetcreated', async (t) => {
-      if (t._targetInfo && t._targetInfo.url.includes(MICROSOFT_URL)) {
-        resolve(await t.page());
-      }
-    }));
+    if (!officeAuthPage) {
+      officeAuthPage = await new Promise(resolve => browser.on('targetcreated', async (t) => {
+        if (t._targetInfo && t._targetInfo.url.includes(MICROSOFT_URL)) {
+          resolve(await t.page());
+        }
+      }));
+    }
     // await $(officeAuthPage).waitFor(1000);
     // email
     await $(officeAuthPage).waitFor('input[type=email]', { selector: 'css' });
