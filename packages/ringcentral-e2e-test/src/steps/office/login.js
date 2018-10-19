@@ -15,6 +15,7 @@ export default class Login {
   static async login({ options: { option } } = {}) {
     const params = context.options.config;
     await $(context.driver.app).waitFor('[class*=loginButton]', { selector: 'css' });
+    await $(page).waitFor(2000);// wait for js warm up;
     await $(page).click('[class*=loginButton]', { selector: 'css' });
     // TODO: wait for popup
     const loginPage = await new Promise(resolve =>
